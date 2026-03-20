@@ -1,11 +1,1934 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus</title>
-    </head>
-    <body>
-        Hello World
-    </body>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>家族族谱系统 -普通用户授权可编辑子女（确定版）</title>
+  <style>
+    * {margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei", sans-serif;}
+    body {background:#f8f9fc;min-width:320px;color:#333;line-height:1.6;}
+
+    .login-wrapper {
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #eef5ff 0%, #f8f9fc 100%);
+      position: relative;
+    }
+    .user-login {
+      width: 420px;
+      background: #fff;
+      padding: 40px 35px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .user-login:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
+    .user-login h3 {
+      text-align: center;
+      margin-bottom: 28px;
+      color:#222;
+      font-size:22px;
+      font-weight:600;
+    }
+    .user-login input {
+      width: 100%;
+      padding: 13px 14px;
+      margin: 10px 0;
+      border: 1px solid #e5e6eb;
+      border-radius: 8px;
+      font-size:15px;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+    .user-login input:focus {
+      outline:none;
+      border-color:#2d8cf0;
+      box-shadow:0 0 0 3px rgba(45,140,240,0.15);
+    }
+    .user-login button {
+      width: 100%;
+      padding: 13px;
+      background: #2d8cf0;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      margin-top: 16px;
+      cursor: pointer;
+      font-size:15px;
+      font-weight:50;
+      transition: background 0.2s;
+    }
+    .user-login button:hover {
+      background: #1b7dce;
+    }
+    .pwd-tip {
+      font-size: 12px;
+      color: #999;
+      margin-top: -4px;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+    .forget-pwd {
+      text-align: right;
+      font-size: 13px;
+      color: #2d8cf0;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .forget-pwd:hover {
+      text-decoration: underline;
+    }
+    .admin-login-trigger {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      padding: 10px 16px;
+      background: #ff4d4f;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .admin-login-trigger:hover {
+      background: #e63946;
+    }
+
+    .admin-login-modal {
+      position: fixed;
+      top:0;left:0;right:0;bottom:0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      animation: fadeIn 0.25s ease;
+    }
+    .admin-login-box {
+      width: 380px;
+      background: #fff;
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.15);
+      animation: zoomIn 0.25s ease;
+    }
+    .admin-login-box h3 {
+      margin-bottom:20px;
+      font-size:19px;
+      text-align:center;
+    }
+    .admin-login-box input {
+      width: 100%;
+      padding: 11px 12px;
+      margin: 8px 0;
+      border: 1px solid #e5e6eb;
+      border-radius: 6px;
+      font-size:15px;
+    }
+    .admin-login-box input:focus {
+      outline:none;
+      border-color:#2d8cf0;
+      box-shadow:0 0 0 3px rgba(45,140,240,0.15);
+    }
+    .admin-forget-pwd {
+      text-align: right;
+      font-size: 13px;
+      color: #2d8cf0;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .admin-forget-pwd:hover {
+      text-decoration: underline;
+    }
+    .admin-btn-row {
+      display: flex;
+      gap:12px;
+      margin-top:20px;
+    }
+    .admin-btn-row button {
+      flex:1;
+      padding:11px;
+      border:none;
+      border-radius:6px;
+      cursor: pointer;
+      font-size:15px;
+      transition:0.2s;
+    }
+    .btn-confirm {background:#2d8cf0;color:#fff;}
+    .btn-confirm:hover {background:#1b7dce;}
+    .btn-cancel {background:#f2f3f5;color:#666;}
+    .btn-cancel:hover {background:#e5e6eb;}
+
+    .container {
+      display: none;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      background: #fff;
+      min-height: 100vh;
+      box-shadow:0 0 20px rgba(0,0,0,0.03);
+    }
+    .nav {
+      background: #ffffff;
+      border-bottom:1px solid #eef0f3;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      font-size:15px;
+      font-weight:50;
+      flex-wrap: wrap;
+      gap:6px;
+    }
+    .nav a {
+      color:#444;
+      text-decoration:none;
+      cursor:pointer;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all 0.22s ease;
+      border:none;
+    }
+    .nav a:hover {
+      background-color: #f0f7ff;
+      color: #2d8cf0 !important;
+    }
+    .nav a.active {
+      background-color: #2d8cf0;
+      color: #fff !important;
+    }
+    .nav-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap:10px;
+      position: relative;
+      flex-wrap: wrap;
+    }
+    .save-all-btn {
+      padding: 8px 16px;
+      background: #00b42a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 50;
+      transition: all 0.2s;
+      box-shadow: 0 2px 6px rgba(0,180,42,0.2);
+    }
+    .save-all-btn:hover {
+      background: #009a25;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(0,180,42,0.25);
+    }
+    .user-menu-btn {
+      padding: 6px 14px;
+      background:#2d8cf0;
+      color:#fff;
+      border:none;
+      border-radius:8px;
+      cursor: pointer;
+      font-size:14px;
+      transition:background 0.2s;
+    }
+    .user-menu-btn:hover {
+      background:#1b7dce;
+    }
+    .user-dropdown {
+      position: absolute;
+      top:42px;
+      right:0;
+      width:170px;
+      background:#fff;
+      border:1px solid #eef0f3;
+      border-radius:10px;
+      box-shadow:0 6px 20px rgba(0,0,0,0.08);
+      z-index: 999;
+      display: none;
+      animation:fadeInUp 0.2s ease;
+    }
+    .user-dropdown div {
+      padding:10px 14px;
+      cursor: pointer;
+      transition:background 0.2s;
+    }
+    .user-dropdown div:hover {
+      background:#f7f8fa;
+      color:#2d8cf0;
+    }
+
+    .main {
+      display: flex;
+      min-height: calc(100vh - 60px);
+    }
+    .left {
+      width: 34%;
+      border-right:1px solid #eef0f3;
+      padding:16px;
+      display: flex;
+      flex-direction: column;
+      gap:14px;
+      background:#fdfdfe;
+    }
+    .right {
+      width: 66%;
+      padding:20px;
+      background:#fff;
+    }
+
+    @media (max-width:768px){
+      .main{flex-direction:column;}
+      .left,.right{width:100% !important;}
+      .nav{padding:10px;}
+      .nav-right{margin-left:0;margin-top:10px;}
+    }
+
+    .search-box {
+      display:flex;
+      gap:8px;
+      height:46px;
+      align-items:center;
+      position:relative;
+      padding-bottom:14px;
+      border-bottom:1px solid #eef0f3;
+    }
+    #search {
+      flex:1;
+      height:100%;
+      padding:10px 12px;
+      border:1px solid #e5e6eb;
+      border-radius:8px;
+      font-size:15px;
+      transition:border 0.2s;
+    }
+    #search:focus {
+      outline:none;
+      border-color:#2d8cf0;
+      box-shadow:0 0 0 3px rgba(45,140,240,0.12);
+    }
+    .search-btn {
+      height:100%;
+      padding:0 16px;
+      background:#2d8cf0;
+      color:white;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      transition:background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      white-space: nowrap;
+    }
+    .search-btn:hover {
+      background:#1b7dce;
+    }
+    .search-dropdown {
+      position:absolute;
+      left:0;
+      top:52px;
+      width:100%;
+      max-height:280px;
+      background:#fff;
+      border:1px solid #eef0f3;
+      border-radius:10px;
+      overflow-y:auto;
+      display:none;
+      z-index:999;
+      box-shadow:0 6px 16px rgba(0,0,0,0.06);
+      animation:fadeInUp 0.2s ease;
+    }
+    .search-item {
+      padding: 5px 12px;
+      cursor:pointer;
+      transition:background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      line-height: 1.4;
+      gap: 10px;
+      min-height: 30px;
+    }
+    .search-item:hover {
+      background:#2d8cf0;
+      color:#fff;
+    }
+    .search-item .name {font-size:14px;flex-shrink:0;}
+    .search-item .info {font-size:12px;color:#888;margin-left:auto;white-space:nowrap;}
+    .search-item:hover .info {color:#39f;}
+
+    .tree {
+      flex:1;
+      overflow:auto;
+      border:1px solid #eef0f3;
+      padding:10px 6px;
+      cursor:grab;
+      background:#ffffff;
+      border-radius:12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+      min-height: unset !important;
+      height: 100% !important;
+    }
+    .tree:active {cursor:grabbing;}
+    ::-webkit-scrollbar {width:6px;height:6px;}
+    ::-webkit-scrollbar-thumb {background:#cce2ff;border-radius:3px;}
+    ::-webkit-scrollbar-track {background:#f7f8fa;}
+    .tree-item {
+      padding: 1px 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      position: relative;
+      margin: 0;
+      min-height: 26px;
+    }
+    .tree-toggle {
+      width: 16px;
+      height: 16px;
+      background: #2d8cf0;
+      color: #ffffff;
+      font-size:12px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 2px;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition:0.15s;
+    }
+    .tree-toggle:hover {background:#1b7dce;}
+    .tree-name {
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      font-size:14px;
+      line-height: 1.4;
+    }
+    .tree-name:hover {background:#e6ffe6 !important;color:#006000 !important;}
+    .tree-name.active {font-weight:50;background:#2d8cf0 !important;color:#fff !important;}
+    .tree-btn {
+      padding: 3px 6px;
+      font-size:12px;
+      background:#2d8cf0;
+      color:white;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      display: none;
+      flex-shrink: 0;
+      margin-left:4px;
+    }
+    .tree-item:hover .tree-btn {display:inline-block;}
+    .tree-name.active + .tree-btn {display:inline-block !important;}
+    .tree-children {padding-left:18px;position:relative;}
+    .tree-children::before {content:'';position:absolute;left:8px;top:0;bottom:0;width:1px;border-left:1px dashed #d0e0f2;}
+    .tree > .tree-children {padding-left:0 !important;}
+    .tree > .tree-children::before {display:none !important;}
+    .tree-avatar{width:22px;height:22px;border-radius:50%;object-fit:cover;margin-right:2px;}
+
+    .path {background:#f8f9fa;padding:14px 16px;border-radius:10px;margin-bottom:14px;font-size:15px;font-weight:bold;}
+    .info {padding:20px;border:1px solid #eef0f3;border-radius:12px;margin-top:14px;background:#fff;}
+    .intro {margin-top:14px;padding:14px;background:#f9fafb;border-radius:10px;}
+    textarea {
+      width:100%;
+      padding:12px;
+      border:1px solid #e5e6eb;
+      border-radius:10px;
+      resize:none;
+      overflow:hidden;
+      min-height:46px;
+      font-size:15px;
+      line-height:1.5;
+      transition:border 0.2s;
+    }
+    textarea:focus {outline:none;border-color:#2d8cf0;box-shadow:0 0 0 3px rgba(45,140,240,0.12);}
+
+    .btn {padding:8px 16px;background:#2d8cf0;color:white;border:none;border-radius:8px;cursor:pointer;margin:6px 6px 0 0;transition:background 0.2s;font-size:14px;}
+    .btn:hover {background:#1b7dce;}
+    .btn-danger {background:#ff4d4f;}
+    .btn-danger:hover {background:#e63946;}
+    .btn-light {background:#f2f3f5;color:#333;}
+    .btn-light:hover {background:#e5e6eb;}
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      animation: fadeIn 0.25s ease;
+    }
+    .modal-box {
+      background: #fff;
+      padding: 30px;
+      border-radius: 14px;
+      width: 680px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+      animation: zoomIn 0.25s ease;
+      margin: auto;
+    }
+    .child-item {display:flex;gap:10px;margin:8px 0;align-items:center;flex-wrap:wrap;}
+    .child-item input {flex:1;padding:8px 10px;border:1px solid #e5e6eb;border-radius:6px;min-width:120px;}
+    .child-item span {width:36px;text-align:center;}
+    .add-row {padding:8px 12px;background:#00b42a;color:white;border:none;border-radius:8px;cursor:pointer;transition:background 0.2s;}
+    .add-row:hover {background:#009a25;}
+    .del-row {padding:8px 12px;background:#ff4d4f;color:white;border:none;border-radius:8px;cursor:pointer;transition:background 0.2s;}
+    .del-row:hover {background:#e63946;}
+
+    .gender-legend {margin-top:10px;display:flex;gap:16px;justify-content:flex-end;font-size:14px;}
+    .gender-box {width:16px;height:16px;display:inline-block;border-radius:4px;}
+    .boy {background:#2d8cf0;}
+    .girl {background:#ff8cb5;}
+    .contact {height:30%;padding-top:14px;border-top:1px solid #eef0f3;}
+
+    .star-row {display:flex;align-items:center;gap:4px;margin-top:6px;}
+    .star {font-size:19px;cursor:pointer;color:#e5e6eb;transition:color 0.15s;}
+    .star.active {color:#ff9500;}
+    .star.disabled {cursor:not-allowed;opacity:0.5;}
+    .exist-children {margin:8px 0;padding:10px;background:#f5f7fa;border-radius:8px;font-size:14px;}
+
+    .pwd-box {position:relative;width:100%;}
+    .pwd-box input {width:100%;padding-right:40px;}
+    .pwd-box button {position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#888;z-index:2;}
+    .user-login .pwd-box button:hover {background:transparent !important;border:none !important;}
+
+    .avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid #eef0f3;cursor:pointer;}
+    .avatar-sm{width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid #eee;}
+    .form-row{margin:10px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .form-row label{min-width:80px;}
+    .form-row input,.form-row select{flex:1;padding:8px 10px;border:1px solid #e5e6eb;border-radius:6px;min-width:140px;}
+
+    .family-line-block {
+      margin-top: 12px;
+      padding: 12px;
+      background: #f0f7ff;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .stat-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat-item {
+      flex: 1;
+      min-width: 120px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid #eef0f3;
+    }
+    .stat-item .icon {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    .stat-item .num {
+      font-size: 18px;
+      font-weight: bold;
+      color: #2d8cf0;
+    }
+    .stat-item .txt {
+      font-size: 12px;
+      color: #666;
+    }
+
+    @keyframes fadeIn {from{opacity:0;}to{opacity:1;}}
+    @keyframes zoomIn {from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
+    @keyframes fadeInUp {from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  </style>
+</head>
+<body>
+
+<div class="login-wrapper" id="loginPage">
+  <div class="user-login">
+    <h3>族谱用户登录</h3>
+    <input id="myName" placeholder="本人姓名">
+    <input id="fatherName" placeholder="父亲姓名">
+    <input id="userPwd" type="password" placeholder="登录密码">
+    <div class="pwd-tip">初始密码：000000</div>
+    <div class="forget-pwd" onclick="openForgetPwd()">忘记密码</div>
+    <button onclick="userLogin()">登录</button>
+  </div>
+  <button class="admin-login-trigger" onclick="showAdminModal()">管理员登录</button>
+</div>
+
+<div class="admin-login-modal" id="adminModal">
+  <div class="admin-login-box">
+    <h3>管理员后台</h3>
+    <input id="adminUser" placeholder="账号" value="admin">
+    <div class="pwd-box">
+      <input id="adminPwd" type="password" placeholder="密码" value="123456">
+      <button type="button" onclick="togglePwd('adminPwd')">👁️</button>
+    </div>
+    <div class="admin-forget-pwd" onclick="adminFindPwd()">找回密码</div>
+    <div class="admin-btn-row">
+      <button class="btn-confirm" onclick="adminLogin()">登录</button>
+      <button class="btn-cancel" onclick="hideAdminModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<div class="container" id="mainBox">
+  <div class="nav" id="nav">
+    <a onclick="showPage('origin')">宗支溯源</a>
+    <a onclick="showPage('rule')">宗支宗规</a>
+    <a onclick="showPage('member')">宗支成员</a>
+    <a onclick="showPage('star')">宗支名人</a>
+    <a onclick="showPage('info')">族谱信息</a>
+    <div class="nav-right" id="navRight"></div>
+  </div>
+  <div class="main">
+    <div class="left">
+      <div class="search-box">
+        <input id="search" placeholder="搜索成员" onkeydown="if(event.key==='Enter')doSearch()" oninput="searchLive()">
+        <button class="search-btn" onclick="doSearch()">搜索</button>
+        <div class="search-dropdown" id="searchDrop" onmouseleave="closeSearch()"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;flex-wrap:wrap;gap:8px;">
+        <label><input type="checkbox" id="showLevel" onchange="renderTree()"> 显示世代</label>
+        <label><input type="checkbox" id="showAvatar" onchange="renderTree()"> 显示头像</label>
+        <label><input type="checkbox" id="foldAll" onchange="foldAllTree()"> 全部折叠</label>
+        <label><input type="checkbox" id="expandAll" onchange="expandAllTree()"> 全部展开</label>
+      </div>
+      <div class="tree" id="tree"></div>
+      <div class="gender-legend">
+        <div><span class="gender-box boy"></span> 男</div>
+        <div><span class="gender-box girl"></span> 女</div>
+      </div>
+      <div class="contact">
+        <h4>联系方式 <button class="tree-btn" id="contactEdit" style="display:none;" onclick="editContact()">修改</button></h4>
+        <div id="contactTxt" style="margin-top:8px;font-size:15px;"></div>
+      </div>
+    </div>
+    <div class="right" id="content"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script>
+let normalUsers = [
+  {id:1, myName:"始祖",    fatherName:"",       pwd:"000000", mid:1, allowEditChild:0},
+  {id:2, myName:"一世祖",  fatherName:"始祖",    pwd:"000000", mid:2, allowEditChild:0},
+  {id:3, myName:"二世祖",  fatherName:"一世祖",  pwd:"000000", mid:3, allowEditChild:0},
+  {id:4, myName:"三世祖", fatherName:"二世祖",  pwd:"000000", mid:4, allowEditChild:0},
+  {id:5, myName:"当前族人",fatherName:"三世祖",  pwd:"000000", mid:5, allowEditChild:0}
+];
+
+let adminUsers = [
+  {user:"admin",  pwd:"123456", role:"super", name:"超级管理员", phone:"13800138000", email:"admin@family.com"},
+  {user:"admin2", pwd:"111111", role:"admin", name:"管理员", phone:"13800138001", email:"admin@family.com"}
+];
+
+let loginInfo = {type:null, user:null, mid:null};
+let familyData = [
+  {id:1,name:"始祖",parent:0,level:1,intro:"始祖",gender:1,isStar:1,star:5,birth:"",native:"",spouse:"",avatar:"image/default.png"},
+  {id:2,name:"一世祖",parent:1,level:2,intro:"一世祖",gender:1,isStar:1,star:4,birth:"",native:"",spouse:"",avatar:"image/default.png"},
+  {id:3,name:"二世祖",parent:2,level:3,intro:"二世祖",gender:1,isStar:0,star:0,birth:"",native:"",spouse:"",avatar:"image/default.png"},
+  {id:4,name:"三世祖",parent:3,level:4,intro:"三世祖",gender:1,isStar:0,star:0,birth:"",native:"",spouse:"",avatar:"image/default.png"},
+  {id:5,name:"当前族人",parent:4,level:5,intro:"当前族人",gender:1,isStar:0,star:0,birth:"",native:"",spouse:"",avatar:"image/default.png"}
+];
+
+let siteData = {
+  origin:"宗支起源说明",
+  rule:"宗支宗规内容",
+  info:"族谱信息内容",
+  contact:{name:"家族管委会",phone:"",email:"admin@family.com",address:""}
+};
+
+let collapsed = {}, foldAll = false;
+
+function saveAllData(){
+  localStorage.setItem("familyData", JSON.stringify(familyData));
+  localStorage.setItem("normalUsers", JSON.stringify(normalUsers));
+  localStorage.setItem("adminUsers", JSON.stringify(adminUsers));
+  localStorage.setItem("siteData", JSON.stringify(siteData));
+}
+function loadAllData(){
+  let d = localStorage.getItem("familyData");
+  let u = localStorage.getItem("normalUsers");
+  let a = localStorage.getItem("adminUsers");
+  let s = localStorage.getItem("siteData");
+  if(d) familyData = JSON.parse(d);
+  if(u) normalUsers = JSON.parse(u);
+  if(a) adminUsers = JSON.parse(a);
+  if(s) siteData = JSON.parse(s);
+}
+
+loadAllData();
+
+function uploadAvatar(cb, memberId) {
+  if (!memberId) memberId = selectId;
+  if (!memberId) {
+    alert('请先选择成员');
+    return;
+  }
+  const inp = document.createElement("input");
+  inp.type = "file";
+  inp.accept = "image/*";
+  inp.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const base64 = ev.target.result;
+      const member = familyData.find(m => m.id === memberId);
+      if (member) {
+        member.avatar = base64;
+        saveAllData();
+        const modalImg = document.querySelector('.modal .avatar');
+        if (modalImg) modalImg.src = base64;
+        renderTree();
+        showPage('member');
+        if (cb) cb(base64);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  inp.click();
+}
+
+function deleteAvatar(memberId) {
+  if (!confirm("确定要删除头像吗？")) return;
+  const item = familyData.find(x => x.id === memberId);
+  if (item) {
+    item.avatar = "image/default.png";
+    saveAllData();
+    renderTree();
+    showPage("member");
+  }
+}
+
+function exportExcel(){
+  let data = familyData.map(i => ({
+    ID:i.id,姓名:i.name,性别:i.gender===1?"男":"女",世代:i.level,
+    父亲:familyData.find(p=>p.id===i.parent)?.name||"无",
+    生日:i.birth||"",籍贯:i.native||"",配偶:i.spouse||"",简介:i.intro||""
+  }));
+  let ws = XLSX.utils.json_to_sheet(data);
+  let wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,"族谱数据");
+  XLSX.writeFile(wb,"家族族谱.xlsx");
+}
+function exportJson(){
+  let data = {familyData,normalUsers,adminUsers,siteData};
+  let blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  let url = URL.createObjectURL(blob);
+  let a = document.createElement("a");
+  a.href=url;a.download="族谱数据.json";a.click();
+}
+function importJson(e){
+  let file = e.target.files[0];
+  if(!file)return;
+  let fr = new FileReader();
+  fr.onload=ev=>{
+    try{
+      let data=JSON.parse(ev.target.result);
+      if(data.familyData)familyData=data.familyData;
+      if(data.normalUsers)normalUsers=data.normalUsers;
+      if(data.adminUsers)adminUsers=data.adminUsers;
+      if(data.siteData)siteData=data.siteData;
+      saveAllData();
+      alert("导入成功！");
+      location.reload();
+    }catch(err){alert("导入失败：格式错误");}
+  };
+  fr.readAsText(file);
+}
+
+function togglePwd(id) {
+  let input = document.getElementById(id);
+  input.type = input.type === "password" ? "text" : "password";
+}
+
+function openForgetPwd() {
+  let m = document.createElement("div");
+  m.className = "modal";
+  m.innerHTML = `
+  <div class="modal-box" style="width:460px;">
+    <h3>找回密码</h3>
+    <div style="margin:10px 0;">
+      <label>本人姓名：</label>
+      <input id="fg_myName" placeholder="请输入本人姓名" style="width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #e5e6eb;">
+    </div>
+    <div style="margin:10px 0;">
+      <label>请填写5代直系长辈名称（无需按顺序）：</label>
+      <input placeholder="长辈姓名" style="width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #e5e6eb;" class="fg_elder">
+      <input placeholder="长辈姓名" style="width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #e5e6eb;" class="fg_elder">
+      <input placeholder="长辈姓名" style="width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #e5e6eb;" class="fg_elder">
+      <input placeholder="长辈姓名" style="width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #e5e6eb;" class="fg_elder">
+      <input placeholder="长辈姓名" style="width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #e5e6eb;" class="fg_elder">
+    </div>
+    <div style="margin:10px 0;font-size:13px;color:#666;">
+      验证通过后可重置密码，信息错误请联系管理员<br>
+      管理员邮箱：admin@family.com
+    </div>
+    <div style="margin-top:20px;text-align:right;">
+      <button class="btn" onclick="checkForgetPwd()">验证并重置密码</button>
+      <button class="btn" onclick="closeModal()">取消</button>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+}
+
+function checkForgetPwd() {
+  let myName = document.getElementById("fg_myName").value.trim();
+  let elders = Array.from(document.querySelectorAll(".fg_elder")).map(i => i.value.trim()).filter(v => v);
+  if (!myName || elders.length < 5) {
+    alert("⚠️ 请填写完整信息！");
+    return;
+  }
+  let user = normalUsers.find(u => u.myName === myName);
+  if (!user) {
+    alert("⚠️ 未找到该成员，请核对姓名！");
+    return;
+  }
+  let path = [];
+  let item = familyData.find(x => x.id === user.mid);
+  while (item && path.length < 5) {
+    item = familyData.find(x => x.id === item.parent);
+    if (item) path.unshift(item.name);
+  }
+  if (path.length !== 5) {
+    alert("⚠️ 族谱信息不足5代，无法验证！");
+    return;
+  }
+  let inputSet = new Set(elders);
+  let pass = path.every(name => inputSet.has(name));
+  if (!pass) {
+    alert("⚠️ 长辈信息验证错误，请重新输入！");
+    return;
+  }
+  user.pwd = "000000";
+  saveAllData();
+  closeModal();
+  alert("✅ 密码已重置为初始密码：000000");
+}
+
+function updateChildLevels(pid) {
+  let parent = familyData.find(x => x.id === pid);
+  if (!parent) return;
+  let children = familyData.filter(x => x.parent === pid);
+  children.forEach(child => {
+    child.level = parent.level + 1;
+    updateChildLevels(child.id);
+  });
+}
+
+function showAdminModal(){document.getElementById("adminModal").style.display="flex"}
+function hideAdminModal(){document.getElementById("adminModal").style.display="none"}
+
+function adminFindPwd(){
+  let username = document.getElementById("adminUser").value.trim();
+  if(!username){
+    alert("请输入管理员账号！");
+    return;
+  }
+  let admin = adminUsers.find(a=>a.user === username);
+  if(admin){
+    alert(`✅ 密码已发送至管理员邮箱：${admin.email}`);
+  }else{
+    alert("❌ 该管理员账号不存在，邮件发送失败！");
+  }
+}
+
+function userLogin(){
+  let myName = document.getElementById("myName").value.trim();
+  let fatherName = document.getElementById("fatherName").value.trim();
+  let pwd = document.getElementById("userPwd").value.trim();
+  let user = normalUsers.find(u=>u.myName===myName && u.fatherName===fatherName && u.pwd===pwd);
+  if(!user){
+    alert("⚠️ 登录信息错误，请检查姓名、父项、密码！");
+    return;
+  }
+  loginInfo = {type:"normal", user:user, mid:user.mid};
+  afterLogin();
+}
+
+function adminLogin(){
+  let user = document.getElementById("adminUser").value.trim();
+  let pwd = document.getElementById("adminPwd").value.trim();
+  let admin = adminUsers.find(a=>a.user===user && a.pwd===pwd);
+  if(!admin){
+    alert("⚠️ 管理员账号或密码错误！");
+    return;
+  }
+  loginInfo = {type:"admin", user:admin, mid:null};
+  hideAdminModal();
+  afterLogin();
+}
+
+function afterLogin(){
+  document.getElementById("loginPage").style.display="none";
+  document.getElementById("mainBox").style.display="block";
+  buildUserMenu();
+  renderTree();
+  showPage("origin");
+  loadContact();
+  initDrag();
+}
+
+function logout(){
+  loginInfo = {type:null, user:null, mid:null};
+  document.getElementById("mainBox").style.display="none";
+  document.getElementById("loginPage").style.display="flex";
+  closeDrop();
+}
+
+function buildUserMenu(){
+  let box = document.getElementById("navRight");
+  box.innerHTML = "";
+  let isAdmin = loginInfo.type === "admin";
+  let isSuper = isAdmin && loginInfo.user.role === "super";
+  if(isAdmin){
+    let saveBtn = document.createElement("button");
+    saveBtn.className = "save-all-btn";
+    saveBtn.innerText = "💾 保存全部";
+    saveBtn.onclick = ()=>{
+      if(!confirm("确定要保存所有修改吗？")) return;
+      if(document.getElementById("originTxt")) siteData.origin = document.getElementById("originTxt").value;
+      if(document.getElementById("ruleTxt")) siteData.rule = document.getElementById("ruleTxt").value;
+      if(document.getElementById("infoTxt")) siteData.info = document.getElementById("infoTxt").value;
+      if(selectId && document.getElementById("introTxt")){
+        let item = familyData.find(x=>x.id === selectId);
+        if(item) item.intro = document.getElementById("introTxt").value;
+      }
+      saveAllData();
+      alert("✅ 所有修改已保存成功！");
+    };
+    box.appendChild(saveBtn);
+
+    let exp = document.createElement("button");
+    exp.className="btn";exp.innerText="📤 导出Excel";
+    exp.onclick=exportExcel;box.appendChild(exp);
+    let expj = document.createElement("button");
+    expj.className="btn";expj.innerText="📄 导出JSON";
+    expj.onclick=exportJson;box.appendChild(expj);
+    let inp = document.createElement("input");
+    inp.type="file";inp.accept=".json";inp.style.display="none";inp.id="importFile";
+    inp.onchange=importJson;box.appendChild(inp);
+    let imp = document.createElement("button");
+    imp.className="btn btn-light";imp.innerText="📥 导入数据";
+    imp.onclick=()=>document.getElementById("importFile").click();box.appendChild(imp);
+  }
+  let nameBtn = document.createElement("button");
+  nameBtn.className = "user-menu-btn";
+  nameBtn.innerText = loginInfo.user.myName || loginInfo.user.user;
+  nameBtn.onclick = toggleDrop;
+  box.appendChild(nameBtn);
+  let drop = document.createElement("div");
+  drop.className = "user-dropdown";
+  drop.id = "userDrop";
+  if(loginInfo.type === "normal"){
+    drop.innerHTML = `
+      <div onclick="goMyInfo()">个人简介</div>
+      <div onclick="openMyEdit()">修改资料</div>
+      <div onclick="logout()">退出登录</div>
+    `;
+  }else{
+    drop.innerHTML = `
+      <div onclick="openAdminInfo()">修改信息</div>
+      ${isSuper ? `<div onclick="openAdminManager()">管理员管理</div>` : ""}
+      <div onclick="logout()">退出登录</div>
+    `;
+  }
+  box.appendChild(drop);
+}
+
+function toggleDrop(){
+  let d = document.getElementById("userDrop");
+  d.style.display = d.style.display === "block" ? "none" : "block";
+}
+function closeDrop(){
+  document.querySelectorAll(".user-dropdown").forEach(d=>d.style.display="none");
+}
+
+function goMyInfo(){
+  closeDrop();
+  let mid = loginInfo.mid;
+  if(mid){selectMember(mid);}
+}
+
+// 普通用户：打开子女管理（授权判断）
+function openUserChildManager(){
+  let user = loginInfo.user;
+  if(!user.allowEditChild || user.allowEditChild == 0){
+    // 未授权 → 弹出你要的提示
+    alert("❌未获管理员授权，不能管理；请联系管理员获取权限！");
+    return;
+  }
+  addChild(loginInfo.mid);
+}
+
+// 普通用户：修改个人资料（新增子女管理按钮）
+function openMyEdit(){
+  closeDrop();
+  let mid = loginInfo.mid;
+  let item = familyData.find(x=>x.id===mid);
+  let user = loginInfo.user;
+  let allowEdit = user.allowEditChild == 1;
+  
+  let m = document.createElement("div");
+  m.className = "modal";
+  m.innerHTML = `
+  <div class="modal-box">
+    <h3>修改个人资料</h3>
+    <div style="margin:14px 0;">
+      <h4 style="margin-bottom:10px; color:#2d8cf0;">修改密码</h4>
+      <div style="display: flex; gap:10px; align-items:center; margin-bottom:8px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:140px;">
+          <label>旧密码</label>
+          <div class="pwd-box" style="margin-top:4px;">
+            <input id="oldPwd" type="password" placeholder="旧密码">
+            <button type="button" onclick="togglePwd('oldPwd')">👁️</button>
+          </div>
+        </div>
+        <div style="flex:1;min-width:140px;">
+          <label>新密码</label>
+          <div class="pwd-box" style="margin-top:4px;">
+            <input id="newPwd" type="password" placeholder="新密码">
+            <button type="button" onclick="togglePwd('newPwd')">👁️</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:4px;">
+        <label>确认新密码</label>
+        <div class="pwd-box" style="margin-top:4px;">
+          <input id="cfmPwd" type="password" placeholder="确认新密码">
+          <button type="button" onclick="togglePwd('cfmPwd')">👁️</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>头像</label>
+      <img src="${item.avatar || 'image/default.png'}" class="avatar" onclick="uploadAvatar(u=>{document.querySelector('.avatar').src=u;},${mid})">
+      <button class="btn btn-danger" onclick="deleteAvatar(${mid})">删除头像</button>
+    </div>
+    <div class="form-row">
+      <label>生日</label><input id="birth" value="${item.birth||''}">
+    </div>
+    <div class="form-row">
+      <label>籍贯</label><input id="native" value="${item.native||''}">
+    </div>
+    <div class="form-row">
+      <label>配偶</label><input id="spouse" value="${item.spouse||''}">
+    </div>
+    <div style="margin:10px 0;">
+      <label>个人简介：</label>
+      <textarea id="newIntro" rows="4" style="width:100%;margin-top:6px;">${item.intro}</textarea>
+    </div>
+
+    <!-- 子女管理入口（管理员授权后显示） -->
+    <div style="margin-top:16px; padding-top:12px; border-top:1px dashed #eee;">
+      <button type="button" class="btn ${allowEdit ? '' : 'btn-light'}" 
+  onclick="openUserChildManager()">
+  👶 管理子女信息
+</button>
+    </div>
+
+    <div style="margin-top:20px;text-align:right;">
+      <button class="btn" onclick="saveMyEdit()">保存</button>
+      <button class="btn" onclick="closeModal()">取消</button>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+  autoHeightAll();
+}
+
+function saveMyEdit(){
+  let oldPwd = document.getElementById("oldPwd").value.trim();
+  let pwd = document.getElementById("newPwd").value.trim();
+  let cfm = document.getElementById("cfmPwd").value.trim();
+  let intro = document.getElementById("newIntro").value.trim();
+  let birth = document.getElementById("birth").value.trim();
+  let native = document.getElementById("native").value.trim();
+  let spouse = document.getElementById("spouse").value.trim();
+  let mid = loginInfo.mid;
+  let user = normalUsers.find(u=>u.mid===mid);
+  if(pwd){
+    if(!oldPwd){alert("⚠️ 请输入旧密码！");return;}
+    if(oldPwd!==user.pwd){alert("⚠️ 旧密码错误！");return;}
+    if(pwd!==cfm){alert("⚠️ 两次输入的新密码不一致！");return;}
+    user.pwd = pwd;
+  }
+  let item = familyData.find(x=>x.id===mid);
+  item.intro = intro;
+  item.birth = birth;
+  item.native = native;
+  item.spouse = spouse;
+  saveAllData();
+  closeModal();
+  selectMember(mid);
+  alert("✅ 个人资料保存成功！");
+}
+
+function openAdminInfo(){
+  closeDrop();
+  let u = loginInfo.user;
+  let m = document.createElement("div");
+  m.className = "modal";
+  m.innerHTML = `
+  <div class="modal-box">
+    <h3>修改管理员信息</h3>
+    <div style="margin:8px 0;">
+      <label>管理员名称</label>
+      <input id="admin_name" value="${u.name}" style="width:100%;padding:10px;margin-top:4px;border-radius:6px;border:1px solid #e5e6eb;">
+    </div>
+    <div style="margin:8px 0;">
+      <label>管理员账号</label>
+      <input id="admin_user" value="${u.user}" style="width:100%;padding:10px;margin-top:4px;border-radius:6px;border:1px solid #e5e6eb;">
+    </div>
+    <div style="margin:8px 0;">
+      <label>联系电话</label>
+      <input id="admin_phone" value="${u.phone||''}" style="width:100%;padding:10px;margin-top:4px;border-radius:6px;border:1px solid #e5e6eb;">
+    </div>
+    <div style="margin:8px 0;">
+      <label>电子邮箱</label>
+      <input id="admin_email" value="${u.email||''}" style="width:100%;padding:10px;margin-top:4px;border-radius:6px;border:1px solid #e5e6eb;">
+    </div>
+    <div style="margin:12px 0;">
+      <label>旧密码</label>
+      <div class="pwd-box"><input id="oldAdminPwd" type="password" placeholder="旧密码"><button onclick="togglePwd('oldAdminPwd')">👁️</button></div>
+    </div>
+    <div style="margin:12px 0;">
+      <label>新密码</label>
+      <div class="pwd-box"><input id="newAdminPwd" type="password" placeholder="新密码"><button onclick="togglePwd('newAdminPwd')">👁️</button></div>
+    </div>
+    <div style="margin:12px 0;">
+      <label>确认新密码</label>
+      <div class="pwd-box"><input id="cfmAdminPwd" type="password" placeholder="确认新密码"><button onclick="togglePwd('cfmAdminPwd')">👁️</button></div>
+    </div>
+    <div style="text-align:right;margin-top:10px;">
+      <button class="btn" onclick="saveAdminInfo()">保存</button>
+      <button class="btn" onclick="closeModal()">取消</button>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+}
+
+function saveAdminInfo(){
+  let name = document.getElementById("admin_name").value.trim();
+  let user = document.getElementById("admin_user").value.trim();
+  let phone = document.getElementById("admin_phone").value.trim();
+  let email = document.getElementById("admin_email").value.trim();
+  let oldPwd = document.getElementById("oldAdminPwd").value.trim();
+  let newPwd = document.getElementById("newAdminPwd").value.trim();
+  let cfmPwd = document.getElementById("cfmAdminPwd").value.trim();
+
+  let curr = loginInfo.user;
+
+  if(!user){alert("账号不能为空");return;}
+  if(email){
+    siteData.contact.email = email;
+  }
+
+  if(oldPwd && newPwd){
+    if(oldPwd !== curr.pwd){
+      alert("旧密码错误");
+      return;
+    }
+    if(newPwd !== cfmPwd){
+      alert("两次密码不一致");
+      return;
+    }
+    curr.pwd = newPwd;
+  }
+
+  curr.name = name;
+  curr.user = user;
+  curr.phone = phone;
+  curr.email = email;
+  saveAllData();
+  buildUserMenu();
+  closeModal();
+  alert("✅ 管理员信息保存成功");
+}
+
+function addAdminRow(){
+  let row = document.createElement("div");
+  row.className = "admin-item";
+  row.style.display = "flex";
+  row.style.gap = "8px";
+  row.style.alignItems = "center";
+  row.style.margin = "6px 0";
+  row.style.flexWrap = "wrap";
+  row.innerHTML = `
+    <span style="width:30px;">${document.querySelectorAll(".admin-item").length+1}</span>
+    <input style="flex:1;min-width:120px;" value="" placeholder="账号">
+    <input style="flex:1;min-width:120px;" type="text" value="" placeholder="密码">
+    <input style="flex:1;min-width:120px;" value="" placeholder="名称">
+    <select style="width:100px;">
+      <option value="super">超级管理员</option>
+      <option value="admin" selected>管理员</option>
+    </select>
+    <button type="button" class="btn btn-danger btn-sm del-admin-btn" style="padding:4px 8px;font-size:12px;" onclick="delAdminRow(this)">删除</button>
+  `;
+  document.getElementById("adminList").appendChild(row);
+}
+function delAdminRow(btn){
+  let row = btn.closest('.admin-item');
+  if(!row) return;
+  let inputs = row.querySelectorAll('input');
+  let role = row.querySelector('select').value;
+  if(role === 'super'){
+    alert('超级管理员不能删除！');
+    return;
+  }
+  if(!confirm('确定删除该管理员？')) return;
+  row.remove();
+}
+
+function openAdminManager(){
+  closeDrop();
+  let list = adminUsers.map((a,i)=>`
+    <div class="admin-item" style="display:flex;gap:8px;align-items:center;margin:6px 0;flex-wrap:wrap;">
+      <span style="width:30px;">${i+1}</span>
+      <input style="flex:1;min-width:120px;" value="${a.user}" placeholder="账号">
+      <input style="flex:1;min-width:120px;" type="text" value="${a.pwd}" placeholder="密码">
+      <input style="flex:1;min-width:120px;" value="${a.name}" placeholder="名称">
+      <select style="width:100px;">
+        <option value="super" ${a.role==="super"?"selected":""}>超级管理员</option>
+        <option value="admin" ${a.role==="admin"?"selected":""}>管理员</option>
+      </select>
+      <button type="button" class="btn btn-danger btn-sm del-admin-btn" style="padding:4px 8px;font-size:12px;" onclick="delAdminRow(this)">删除</button>
+    </div>
+  `).join("");
+  let m = document.createElement("div");
+  m.className = "modal";
+  m.innerHTML = `
+  <div class="modal-box">
+    <h3>管理员管理</h3>
+    <div style="margin:10px 0;">
+      <button class="add-row" onclick="addAdminRow()">➕ 新增管理员</button>
+    </div>
+    <div id="adminList" style="margin:10px 0;max-height:400px;overflow-y:auto;padding:4px;">
+      ${list}
+    </div>
+    <div style="text-align:right;margin-top:16px;">
+      <button class="btn" onclick="saveAdminManager()">保存</button>
+      <button class="btn" onclick="closeModal()">取消</button>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+}
+function saveAdminManager(){
+  let rows = document.querySelectorAll(".admin-item");
+  let arr = [];
+  rows.forEach(r=>{
+    let inp = r.querySelectorAll("input");
+    let sel = r.querySelector("select");
+    arr.push({
+      user:inp[0].value.trim(),
+      pwd:inp[1].value.trim(),
+      name:inp[2].value.trim(),
+      role:sel.value
+    });
+  });
+  if(!arr.length||!arr[0].user||!arr[0].pwd){
+    alert("至少保留一个超级管理员！");return;
+  }
+  adminUsers = arr;
+  saveAllData();
+  closeModal();
+  alert("保存成功！");
+}
+
+function closeModal(){
+  document.querySelectorAll(".modal").forEach(m=>m.remove());
+}
+
+function getLevelStats() {
+  let map = {};
+  familyData.forEach(item => {
+    let lvl = item.level;
+    if (!map[lvl]) map[lvl] = 0;
+  });
+  let arr = [];
+  Object.keys(map).sort((a,b)=>a-b).forEach(lvl => {
+    arr.push({level: lvl, count: map[lvl]});
+  });
+  return arr;
+}
+
+function showPage(key){
+  document.querySelectorAll("#nav a").forEach(a=>a.classList.remove("active"));
+  document.querySelector(`#nav a[onclick="showPage('${key}')"]`).classList.add("active");
+  let c = document.getElementById("content");
+  let isAdmin = loginInfo.type === "admin";
+  
+  if(key === "origin"){
+    c.innerHTML = `
+      <div class="path">宗支溯源</div>
+      <div style="padding:14px;background:#f9fafb;border-radius:10px;">
+        <textarea ${!isAdmin?"readonly":""} id="originTxt" rows="8" style="width:100%;">${siteData.origin}</textarea>
+      </div>`;
+  }else if(key === "rule"){
+    c.innerHTML = `
+      <div class="path">宗支宗规</div>
+      <div style="padding:14px;background:#f9fafb;border-radius:10px;">
+        <textarea ${!isAdmin?"readonly":""} id="ruleTxt" rows="8" style="width:100%;">${siteData.rule}</textarea>
+      </div>`;
+  }else if(key === "info"){
+    let stats = getLevelStats();
+    let statHtml = `<div class="stat-box">`;
+    stats.forEach(s => {
+      statHtml += `
+        <div class="stat-item">
+          <div class="icon">👨‍👩‍👧‍👦</div>
+          <div class="num">${s.count}</div>
+          <div class="txt">第${s.level}世</div>
+        </div>
+      `;
+    });
+    statHtml += `</div>`;
+  
+    c.innerHTML = `
+      <div class="path">族谱信息</div>
+      ${statHtml}
+      <div style="padding:14px;background:#f9fafb;border-radius:10px;">
+        <textarea ${!isAdmin?"readonly":""} id="infoTxt" rows="8" style="width:100%;">${siteData.info}</textarea>
+      </div>`;
+  }else if(key === "star"){
+    // 宗支名人：优先星级降序 → 同星级按辈分（世代）降序
+    let stars = [...familyData].filter(x=>x.isStar).sort((a,b)=>{
+      if(b.star !== a.star) return b.star - a.star;
+      return b.level - a.level;
+    }).map(i=>`
+      <div style="padding:12px;border-bottom:1px solid #eee;">
+        <div style="font-weight:bold;font-size:16px;">${i.name}</div>
+        <div style="color:#666;font-size:13px;margin-top:4px;">世代：${i.level} 代</div>
+        <div style="margin-top:6px;line-height:1.6;">${i.intro}</div>
+        <div style="margin-top:8px;padding:8px;background:#f0f7ff;border-radius:6px;font-size:13px;">
+          <b>族系：</b>${getFamilyLine(i.id)}
+        </div>
+      </div>
+    `).join("");
+    c.innerHTML = `<div class="path">宗支名人</div><div>${stars||"<div style='padding:10px;'>暂无名人</div>"}</div>`;
+  }else{
+    c.innerHTML = `<div class="path">成员信息</div>${selectId?renderInfo():"<div style='padding:10px;'>请在左侧选择成员</div>"}`;
+  }
+  autoHeightAll();
+}
+
+function autoHeight(el){
+  el.style.height = "auto";
+  el.style.height = (el.scrollHeight)+"px";
+}
+function autoHeightAll(){
+  document.querySelectorAll("textarea").forEach(t=>autoHeight(t));
+}
+
+function renderTree(){
+  let root = familyData.find(x=>x.parent===0);
+  if(!root)return;
+  let tree = document.getElementById("tree");
+  tree.innerHTML = `<div class="tree-children">${buildNode(root)}</div>`;
+}
+
+// 构建节点：子节点按星级+辈分排序
+function buildNode(node){
+  let children = familyData.filter(x=>x.parent===node.id);
+  // 排序：星级高 → 辈分高（数值小）
+  children = [...children].sort((a,b)=>{
+    if(b.star !== a.star) return b.star - a.star;
+    return a.level - b.level;
+  });
+
+  let showLevel = document.getElementById("showLevel").checked;
+  let showAvatar = document.getElementById("showAvatar").checked;
+  let hasChild = children.length>0;
+  let isCollapsed = foldAll || collapsed[node.id];
+  let avatar = showAvatar ? `<img src="${node.avatar || 'image/default.png'}" class="tree-avatar">` : "";
+  let level = showLevel ? `[${node.level}]` : "";
+  let color = node.gender===1 ? "#2d8cf0" : "#ff8cb5";
+  let toggle = hasChild 
+    ? `<button class="tree-toggle" onclick="toggleCollapse(${node.id})">${isCollapsed?"+":"−"}</button>` 
+    : `<button class="tree-toggle" style="background:#ccc;cursor:default;">−</button>`;
+
+  let isMyChild = (loginInfo.type === "normal" && loginInfo.user.allowEditChild && node.parent === loginInfo.mid);
+  let showUserBtns = isMyChild ? `
+    <button class="tree-btn" onclick="userEditChild(${node.id})">✏️</button>
+  ` : "";
+
+  let btns = loginInfo.type==="admin" ? `
+    <button class="tree-btn" onclick="addChild(${node.id})">➕</button>
+    <button class="tree-btn" onclick="editMember(${node.id})">✏️</button>
+  ` : showUserBtns;
+
+  let html = `
+    <div class="tree-item">
+      ${toggle}
+      ${avatar}
+      <span class="tree-name ${selectId===node.id?'active':''}" style="color:${color};" onclick="selectMember(${node.id})">
+        ${node.name} ${level}
+      </span>
+      ${btns}
+    </div>
+  `;
+  if(hasChild && !isCollapsed){
+    html += `<div class="tree-children">`;
+    children.forEach(c=>{html += buildNode(c);});
+    html += `</div>`;
+  }
+  return html;
+}
+
+function toggleCollapse(id){
+  collapsed[id] = !collapsed[id];
+  renderTree();
+}
+function foldAllTree(){
+  foldAll = document.getElementById("foldAll").checked;
+  document.getElementById("expandAll").checked = false;
+  renderTree();
+}
+function expandAllTree(){
+  foldAll = false;
+  collapsed = {};
+  document.getElementById("foldAll").checked = false;
+  renderTree();
+}
+
+let selectId = null;
+function selectMember(id){
+  selectId = id;
+  renderTree();
+  showPage("member");
+}
+
+function getFamilyLine(id) {
+  let arr = [];
+  let item = familyData.find(x => x.id === id);
+  while (item) {
+    arr.unshift(item.name);
+    item = familyData.find(x => x.id === item.parent);
+  }
+  return arr.join(" → ");
+}
+
+function renderInfo(){
+  let item = familyData.find(x=>x.id===selectId);
+  if(!item)return "";
+  let parent = familyData.find(p=>p.id===item.parent);
+  let children = familyData.filter(x=>x.parent===item.id);
+  let isAdmin = loginInfo.type === "admin";
+  let isMyChild = (loginInfo.type === "normal" && loginInfo.user.allowEditChild && item.parent === loginInfo.mid);
+  let starHtml = "";
+  
+  if(isAdmin){
+    starHtml = `
+      <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+        <label style="font-size:14px;">
+          <input type="checkbox" id="setStarCheck" ${item.isStar?'checked':''} onchange="toggleStarCheck()"> 设为星级成员
+        </label>
+        <div class="star-row">`;
+    for(let i=1;i<=5;i++){
+      starHtml += `<span class="star ${i<=item.star?'active':''} ${item.isStar?'':'disabled'}" onclick="setStar(${i})">★</span>`;
+    }
+    starHtml += `</div></div>`;
+  }else if(item.isStar){
+    let stars = "";
+    for(let i=1;i<=5;i++)stars += `<span class="star ${i<=item.star?'active':''} disabled">★</span>`;
+    starHtml = `<div class="star-row">${stars}</div>`;
+  }
+
+  let userChildBtns = isMyChild ? `
+    <div style="margin-top:14px;">
+      <button class="btn" onclick="userEditChild(${item.id})">编辑子女资料</button>
+    </div>
+  ` : "";
+
+  return `
+    <div class="info">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+        <img src="${item.avatar || 'image/default.png'}" class="avatar" onclick="${isAdmin?`uploadAvatar(null,${item.id})`:''}">
+        ${isAdmin?`<button class="btn btn-danger" onclick="deleteAvatar(${item.id})">删除头像</button>`:''}
+        <div>
+          <div style="font-size:20px;font-weight:bold;">${item.name}</div>
+          <div style="color:#666;margin-top:4px;">第 ${item.level} 代 · ${item.gender===1?'男':'女'}</div>
+          ${starHtml}
+        </div>
+      </div>
+      <div style="margin:8px 0;"><b>父亲：</b>${parent?parent.name:'无'}</div>
+      <div style="margin:8px 0;"><b>生日：</b>${item.birth||'未填写'}</div>
+      <div style="margin:8px 0;"><b>籍贯：</b>${item.native||'未填写'}</div>
+      <div style="margin:8px 0;"><b>配偶：</b>${item.spouse||'未填写'}</div>
+      <div class="intro">
+        <div style="margin-bottom:8px;font-weight:bold;">个人简介</div>
+        <textarea ${!isAdmin?"readonly":""} id="introTxt" rows="4" style="width:100%;">${item.intro}</textarea>
+      </div>
+
+      ${isAdmin?`
+        <div style="margin-top:14px;">
+          <button class="btn" onclick="addChild(${item.id})">添加子女</button>
+          <button class="btn" onclick="editMember(${item.id})">编辑成员</button>
+          <button class="btn btn-danger" onclick="delMember(${item.id})">删除成员</button>
+        </div>
+      `:""}
+
+      ${userChildBtns}
+    </div>
+
+    <div class="exist-children">
+      <b>子女：</b> ${children.length?children.map(c=>c.name).join("、"):"暂无子女"}
+    </div>
+
+    <div class="family-line-block">
+      <b>族系：</b>${getFamilyLine(selectId)}
+    </div>
+  `;
+}
+
+function toggleStarCheck(){
+  let item = familyData.find(x=>x.id===selectId);
+  let ck = document.getElementById("setStarCheck").checked;
+  item.isStar = ck ? 1 : 0;
+  if(!ck) item.star = 0;
+  saveAllData();
+  showPage("member");
+}
+
+function setStar(val){
+  let ck = document.getElementById("setStarCheck");
+  if(!ck || !ck.checked){
+    alert("请先勾选【设为星级成员】");
+    return;
+  }
+  let item = familyData.find(x=>x.id===selectId);
+  item.star = val;
+  item.isStar = 1;
+  saveAllData();
+  showPage("member");
+}
+
+function addChild(pid){
+  let p = familyData.find(x=>x.id===pid);
+  let existChildren = familyData.filter(x=>x.parent===pid);
+  let existHtml = '';
+  if(existChildren.length > 0){
+    existHtml = `<div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px dashed #eee;">
+      <div style="font-weight:bold;margin-bottom:8px;">已有子女</div>`;
+    existChildren.forEach((child, idx)=>{
+      existHtml += `<div style="padding:4px 0;font-size:14px;">
+        ${idx+1}、${child.name}（${child.gender==1?"男":"女"}）
+        <button class="btn btn-sm" style="padding:2px 6px;font-size:12px;margin-left:8px;" onclick="selectMember(${child.id});closeModal();">查看</button>
+        <button class="btn btn-danger btn-sm" style="padding:2px 6px;font-size:12px;margin-left:4px;" onclick="delMember(${child.id});closeModal();">删除</button>
+      </div>`;
+    });
+    existHtml += `</div>`;
+  }
+  let startNum = existChildren.length + 1;
+  let m = document.createElement("div");
+  m.className = "modal";
+  m.innerHTML = `
+  <div class="modal-box">
+    <h3>添加【${p.name}】的子女</h3>
+    ${existHtml}
+    <div id="childRows">
+      <div class="child-item">
+        <span>${startNum}</span>
+        <input placeholder="姓名" class="cname">
+        <select class="cgender"><option value="1">男</option><option value="2">女</option></select>
+      </div>
+    </div>
+    <div style="margin:10px 0;">
+      <button class="add-row" onclick="addChildRow()">➕ 增加一行</button>
+      <button class="del-row" onclick="delChildRow()">➖ 删除一行</button>
+    </div>
+    <div style="text-align:right;margin-top:10px;">
+      <button class="btn" onclick="saveChildren(${pid})">保存</button>
+      <button class="btn" onclick="closeModal()">取消</button>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+  window.childCount = 1;
+}
+
+function addChildRow(){
+  let parentId = selectId || loginInfo.mid;
+  let exist = familyData.filter(x=>x.parent===parentId).length;
+  let num = exist + childCount + 1;
+  childCount++;
+  let row = document.createElement("div");
+  row.className = "child-item";
+  row.innerHTML = `<span>${num}</span><input placeholder="姓名" class="cname"><select class="cgender"><option value="1">男</option><option value="2">女</option></select>`;
+  document.getElementById("childRows").appendChild(row);
+}
+function delChildRow(){
+  if(childCount<=1)return;
+  document.querySelectorAll(".child-item")[childCount-1].remove();
+  childCount--;
+}
+function saveChildren(pid){
+  let p = familyData.find(x=>x.id===pid);
+  let rows = document.querySelectorAll(".child-item");
+  let ok = true;
+  rows.forEach(r=>{
+    let name = r.querySelector(".cname").value.trim();
+    let gender = r.querySelector(".cgender").value;
+    if(!name){ok=false;return;}
+    let newId = Math.max(...familyData.map(x=>x.id),0)+1;
+    familyData.push({
+      id:newId,name:name,parent:pid,level:p.level+1,
+      intro:name,gender:+gender,isStar:0,star:0,
+      birth:"",native:"",spouse:"",avatar:"image/default.png"
+    });
+    let uid = Math.max(...normalUsers.map(x=>x.id),0)+1;
+    normalUsers.push({id:uid,myName:name,fatherName:p.name,pwd:"000000",mid:newId,allowEditChild:0});
+  });
+  if(!ok){alert("请填写姓名");return;}
+  saveAllData();
+  closeModal();
+  renderTree();
+  alert("添加成功");
+  childCount = 1;
+}
+
+function showMemberPwd(mid) {
+  let user = normalUsers.find(u => u.mid === mid);
+  if (!user) {
+    alert("未找到该成员的登录信息");
+    return;
+  }
+  alert(`【${user.myName}】登录密码：${user.pwd}`);
+}
+
+function resetMemberPwd(mid) {
+  let user = normalUsers.find(u => u.mid === mid);
+  if (!user) {
+    alert("未找到该成员的登录信息");
+  }
+  if (!confirm(`确定要重置【${user.myName}】的密码为初始密码 000000 吗？`)) return;
+  user.pwd = "000000";
+  saveAllData();
+  alert("✅ 密码已重置为：000000");
+}
+
+// 普通用户：编辑子女资料（完整权限）
+function userEditChild(id) {
+  let item = familyData.find(x => x.id === id);
+  let user = normalUsers.find(u => u.mid === id);
+  if (!item || item.parent !== loginInfo.mid) {
+    alert("❌ 你只能编辑自己的子女信息");
+    return;
+  }
+
+  let m = document.createElement("div");
+  m.className = "modal";
+  m.innerHTML = `
+  <div class="modal-box">
+    <h3>编辑子女资料</h3>
+    <div class="form-row">
+      <label>姓名</label>
+      <input id="edit_child_name" value="${item.name}">
+    </div>
+    <div class="form-row">
+      <label>性别</label>
+      <select id="edit_child_gender">
+        <option value="1" ${item.gender === 1 ? "selected" : ""}>男</option>
+        <option value="2" ${item.gender === 2 ? "selected" : ""}>女</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>生日</label><input id="edit_child_birth" value="${item.birth || ''}">
+    </div>
+    <div class="form-row">
+      <label>籍贯</label><input id="edit_child_native" value="${item.native || ''}">
+    </div>
+    <div class="form-row">
+      <label>配偶</label><input id="edit_child_spouse" value="${item.spouse || ''}">
+    </div>
+    <div class="form-row">
+      <label>头像</label>
+      <img src="${item.avatar || 'image/default.png'}" class="avatar" onclick="uploadAvatar(()=>{},${id})">
+      <button class="btn btn-danger" onclick="deleteAvatar(${id})">删除头像</button>
+    </div>
+    <div style="margin:10px 0;">
+      <label>简介</label>
+      <textarea id="edit_child_intro" rows="4" style="width:100%;margin-top:6px;">${item.intro}</textarea>
+    </div>
+    <div style="margin-top:16px; padding-top:12px; border-top:1px dashed #eee;">
+      <label style="font-weight:bold; color:#ff4d4f;">登录密码</label>
+      <div style="margin-top:8px;">
+        <button type="button" class="btn btn-danger" onclick="resetMemberPwd(${id})">🔄 重置为初始密码</button>
+      </div>
+    </div>
+    <div style="text-align:right;margin-top:10px;">
+      <button class="btn" onclick="saveUserEditChild(${id})">保存</button>
+      <button class="btn" onclick="closeModal()">取消</button>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+  autoHeightAll();
+}
+
+// 普通用户：保存子女编辑
+function saveUserEditChild(id) {
+  let item = familyData.find(x => x.id === id);
+  if (!item || item.parent !== loginInfo.mid) {
+    alert("❌ 无权限");
+    return;
+  }
+  let name = document.getElementById("edit_child_name").value.trim();
+  let gender = +document.getElementById("edit_child_gender").value;
+  let birth = document.getElementById("edit_child_birth").value.trim();
+  let native = document.getElementById("edit_child_native").value.trim();
+  let spouse = document.getElementById("edit_child_spouse").value.trim();
+  let intro = document.getElementById("edit_child_intro").value.trim();
+  if (!name) {
+    alert("姓名不能为空");
+    return;
+  }
+  item.name = name;
+  item.gender = gender;
+  item.birth = birth;
+  item.native = native;
+  item.spouse = spouse;
+  item.intro = intro;
+
+  let user = normalUsers.find(u => u.mid === id);
+  if (user) user.myName = name;
+
+  saveAllData();
+  closeModal();
+  renderTree();
+  showPage("member");
+  alert("✅ 子女资料保存成功");
+}
+
+// 管理员编辑成员：新增授权开关
+function editMember(id){
+  let item = familyData.find(x=>x.id===id);
+  let user = normalUsers.find(u=>u.mid === id);
+  let isRoot = item.id === 1;
+  let m = document.createElement("div");
+  m.className = "modal";
+  m.innerHTML = `
+  <div class="modal-box">
+    <h3>编辑成员</h3>
+    <div class="form-row">
+      <label>姓名</label>
+      <input id="edit_name" value="${item.name}">
+    </div>
+    <div class="form-row">
+      <label>性别</label>
+      <select id="edit_gender">
+        <option value="1" ${item.gender===1?"selected":""}>男</option>
+        <option value="2" ${item.gender===2?"selected":""}>女</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>世代</label>
+      <input id="edit_level" value="${item.level}" ${!isRoot ? "readonly style='background:#f5f5f5;'" : ""}>
+    </div>
+    <div class="form-row">
+      <label>生日</label><input id="edit_birth" value="${item.birth||''}">
+    </div>
+    <div class="form-row">
+      <label>籍贯</label><input id="edit_native" value="${item.native||''}">
+    </div>
+    <div class="form-row">
+      <label>配偶</label><input id="edit_spouse" value="${item.spouse||''}">
+    </div>
+    <div class="form-row">
+      <label>头像</label>
+      <img src="${item.avatar || 'image/default.png'}" class="avatar" onclick="uploadAvatar(null,${id})">
+      <button class="btn btn-danger" onclick="deleteAvatar(${id})">删除头像</button>
+    </div>
+    <div style="margin:10px 0;">
+      <label>简介</label>
+      <textarea id="edit_intro" rows="4" style="width:100%;margin-top:6px;">${item.intro}</textarea>
+    </div>
+
+    <!-- 管理员授权：允许该用户修改子女 -->
+    <div style="margin-top:16px; padding-top:12px; border-top:1px dashed #eee;">
+      <label style="font-weight:bold; color:#2d8cf0;">
+        <input type="checkbox" id="allowEditChild" ${user?.allowEditChild==1 ? 'checked' : ''}>
+        授权该用户【添加/删除/修改子女信息】
+      </label>
+      <div style="font-size:12px;color:#666;margin-top:4px;">开启后，用户可在个人资料中管理子女</div>
+    </div>
+
+    <div style="margin-top:16px; padding-top:12px; border-top:1px dashed #eee;">
+      <label style="font-weight:bold; color:#ff4d4f;">登录密码管理</label>
+      <div style="display:flex; gap:10px; margin-top:8px;">
+        <button type="button" class="btn" onclick="showMemberPwd(${id})">👁️ 查看密码</button>
+        <button type="button" class="btn btn-danger" onclick="resetMemberPwd(${id})">🔄 重置初始密码</button>
+      </div>
+    </div>
+
+    <div style="text-align:right;margin-top:10px;">
+      <button class="btn" onclick="saveEditMember(${id})">保存</button>
+      <button class="btn" onclick="closeModal()">取消</button>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+  autoHeightAll();
+}
+function saveEditMember(id){
+  let item = familyData.find(x=>x.id===id);
+  let user = normalUsers.find(u=>u.mid === id);
+  let name = document.getElementById("edit_name").value.trim();
+  let gender = +document.getElementById("edit_gender").value;
+  let level = +document.getElementById("edit_level").value;
+  let birth = document.getElementById("edit_birth").value.trim();
+  let native = document.getElementById("edit_native").value.trim();
+  let spouse = document.getElementById("edit_spouse").value.trim();
+  let intro = document.getElementById("edit_intro").value.trim();
+  let allowEditChild = document.getElementById("allowEditChild").checked ? 1 : 0;
+  
+  if(!name){alert("姓名不能为空");return;}
+
+  item.level = level;
+  updateChildLevels(id);
+
+  item.name = name;
+  item.gender = gender;
+  item.birth = birth;
+  item.native = native;
+  item.spouse = spouse;
+  item.intro = intro;
+  
+  if(user){
+    user.allowEditChild = allowEditChild;
+    user.myName = name;
+  }
+  
+  saveAllData();
+  closeModal();
+  renderTree();
+  showPage("member");
+  alert("保存成功");
+}
+
+function delMember(id){
+  if(id === 1){
+    alert("⚠️ 始祖不能删除！");
+    return;
+  }
+  if(familyData.filter(x=>x.parent===id).length>0){
+    alert("请先删除该成员的所有子女！");
+    return;
+  }
+  if(!confirm("确定要删除该成员吗？删除后不可恢复！")) return;
+  
+  familyData = familyData.filter(x=>x.id !== id);
+  normalUsers = normalUsers.filter(x=>x.mid !== id);
+  saveAllData();
+  selectId = null;
+  renderTree();
+  showPage("member");
+  alert("✅ 成员删除成功！");
+}
+
+function searchLive(){
+  let kw = document.getElementById("search").value.trim().toLowerCase();
+  let drop = document.getElementById("searchDrop");
+  if(!kw){drop.style.display="none";return;}
+  let list = familyData.filter(x=>x.name.toLowerCase().includes(kw)).map(i=>`
+    <div class="search-item" onclick="selectMember(${i.id});closeSearch();">
+      <span class="name">${i.name}</span>
+      <span class="info">第${i.level}代 · ${i.gender===1?"男":"女"}</span>
+    </div>
+  `).join("");
+  drop.innerHTML = list||"<div style='padding:8px;text-align:center;color:#999;'>无结果</div>";
+  drop.style.display = "block";
+}
+function doSearch(){
+  let kw = document.getElementById("search").value.trim();
+  if(!kw){alert("请输入关键词");return;}
+  searchLive();
+}
+function closeSearch(){
+  setTimeout(()=>document.getElementById("searchDrop").style.display="none",200);
+}
+
+function loadContact(){
+  let c = siteData.contact;
+  document.getElementById("contactTxt").innerHTML = `
+    ${c.name}<br>
+    电话：${c.phone||"无"}<br>
+    邮箱：${c.email||"无"}<br>
+    地址：${c.address||"无"}
+  `;
+  if(loginInfo.type==="admin")document.getElementById("contactEdit").style.display="inline-block";
+}
+function editContact(){
+  let c = siteData.contact;
+  let m = document.createElement("div");
+  m.className = "modal";
+  m.innerHTML = `
+  <div class="modal-box" style="width:460px;">
+    <h3>修改联系方式</h3>
+    <div class="form-row"><label>名称</label><input id="ct_name" value="${c.name}"></div>
+    <div class="form-row"><label>电话</label><input id="ct_phone" value="${c.phone||''}"></div>
+    <div class="form-row"><label>邮箱</label><input id="ct_email" value="${c.email||''}"></div>
+    <div class="form-row"><label>地址</label><input id="ct_address" value="${c.address||''}"></div>
+    <div style="text-align:right;margin-top:16px;">
+      <button class="btn" onclick="saveContact()">保存</button>
+      <button class="btn" onclick="closeModal()">取消</button>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+}
+function saveContact(){
+  siteData.contact = {
+    name:document.getElementById("ct_name").value.trim(),
+    phone:document.getElementById("ct_phone").value.trim(),
+    email:document.getElementById("ct_email").value.trim(),
+    address:document.getElementById("ct_address").value.trim()
+  };
+  saveAllData();
+  closeModal();
+  loadContact();
+  alert("保存成功");
+}
+
+function initDrag(){
+  let el = document.getElementById("tree");
+  let isDown = false, startX, startY, scrollLeft, scrollTop;
+  el.onmousedown = e=>{
+    isDown = true;
+    startX = e.pageX - el.offsetLeft;
+    startY = e.pageY - el.offsetTop;
+    scrollLeft = el.scrollLeft;
+    scrollTop = el.scrollTop;
+  };
+  el.onmouseleave = ()=>{isDown=false;};
+  el.onmouseup = ()=>{isDown=false;};
+  el.onmousemove = e=>{
+    if(!isDown)return;
+    e.preventDefault();
+    let x = e.pageX - el.offsetLeft;
+    let y = e.pageY - el.offsetTop;
+    let walkX = (x - startX)*1;
+    let walkY = (y - startY)*1;
+    el.scrollLeft = scrollLeft - walkX;
+    el.scrollTop = scrollTop - walkY;
+  };
+}
+</script>
+</body>
 </html>
